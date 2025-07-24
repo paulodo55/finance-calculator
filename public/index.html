@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceAI - Smart Financial Calculator for Students</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-calculator"></i>
+                <h1>FinanceAI</h1>
+            </div>
+            <p class="tagline">Master Financial Formulas with AI-Powered Learning</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Formula Categories -->
+            <section class="formula-categories">
+                <h2>Choose Your Formula Category</h2>
+                <div class="category-grid">
+                    <div class="category-card" data-category="simple-interest">
+                        <i class="fas fa-percentage"></i>
+                        <h3>Simple Interest</h3>
+                        <p>Basic interest calculations</p>
+                    </div>
+                    <div class="category-card" data-category="compound-interest">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Compound Interest</h3>
+                        <p>Growth with compounding</p>
+                    </div>
+                    <div class="category-card" data-category="annuities">
+                        <i class="fas fa-coins"></i>
+                        <h3>Annuities</h3>
+                        <p>Regular payment streams</p>
+                    </div>
+                    <div class="category-card" data-category="loans">
+                        <i class="fas fa-home"></i>
+                        <h3>Loans & Mortgages</h3>
+                        <p>Payment calculations</p>
+                    </div>
+                    <div class="category-card" data-category="demand-supply">
+                        <i class="fas fa-balance-scale"></i>
+                        <h3>Demand & Supply</h3>
+                        <p>Linear economic functions</p>
+                    </div>
+                    <div class="category-card" data-category="word-problems">
+                        <i class="fas fa-brain"></i>
+                        <h3>Word Problems</h3>
+                        <p>AI-powered problem solver</p>
+                    </div>
+                    <div class="category-card" data-category="ai-tutor">
+                        <i class="fas fa-user-graduate"></i>
+                        <h3>AI Financial Tutor</h3>
+                        <p>Professional guidance & explanations</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Formula Display Area -->
+            <section class="formula-display" id="formula-display" style="display: none;">
+                <div class="formula-header">
+                    <h3 id="formula-title">Formula</h3>
+                    <button class="back-btn" id="back-btn">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                <div class="formula-container">
+                    <div class="formula-box" id="formula-box">
+                        <!-- Dynamic formula content -->
+                    </div>
+                    <div class="formula-controls">
+                        <button class="copy-btn" id="copy-formula">
+                            <i class="fas fa-copy"></i> Copy Formula
+                        </button>
+                        <button class="solve-btn" id="solve-for">
+                            <i class="fas fa-exchange-alt"></i> Solve For...
+                        </button>
+                    </div>
+                </div>
+                <div class="explanation-panel" id="explanation-panel">
+                    <h4>Variable Explanations</h4>
+                    <div id="variable-explanations">
+                        <!-- Dynamic explanations -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Word Problem Solver -->
+            <section class="word-problem-solver" id="word-problem-solver" style="display: none;">
+                <div class="solver-header">
+                    <h3>AI Word Problem Solver</h3>
+                    <button class="back-btn" id="solver-back-btn">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                <div class="input-methods">
+                    <div class="input-tabs">
+                        <button class="tab-btn active" data-tab="text">
+                            <i class="fas fa-keyboard"></i> Type Problem
+                        </button>
+                        <button class="tab-btn" data-tab="image">
+                            <i class="fas fa-image"></i> Upload Image
+                        </button>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-panel active" id="text-panel">
+                            <textarea id="problem-text" placeholder="Paste your word problem here..."></textarea>
+                            <button class="analyze-btn" id="analyze-text">
+                                <i class="fas fa-magic"></i> Analyze Problem
+                            </button>
+                        </div>
+                        <div class="tab-panel" id="image-panel">
+                            <div class="image-upload">
+                                <input type="file" id="image-input" accept="image/*" hidden>
+                                <div class="upload-area" id="upload-area">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload or drag & drop</p>
+                                    <small>Supports JPG, PNG, PDF</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="analysis-result" id="analysis-result" style="display: none;">
+                    <h4>Problem Analysis</h4>
+                    <div class="analysis-content">
+                        <div class="identified-values" id="identified-values">
+                            <!-- Dynamic content -->
+                        </div>
+                        <div class="suggested-formula" id="suggested-formula">
+                            <!-- Dynamic content -->
+                        </div>
+                        <div class="step-by-step" id="step-by-step">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Financial Tutor -->
+            <section class="ai-tutor" id="ai-tutor" style="display: none;">
+                <div class="tutor-header">
+                    <h3>AI Financial Tutor</h3>
+                    <button class="back-btn" id="tutor-back-btn">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                <div class="tutor-intro">
+                    <div class="tutor-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="tutor-description">
+                        <h4>Professor FinanceAI</h4>
+                        <p>Your no-nonsense financial tutor. Ask me anything about finance, economics, or problem-solving strategies. I'll give you straight answers with clear explanations.</p>
+                    </div>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="tutor-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="message-content">
+                                <p><strong>Professor FinanceAI:</strong> Ready to tackle your financial questions. What concept do you need help understanding?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <div class="input-wrapper">
+                            <textarea id="tutor-question" placeholder="Ask your financial question here..." rows="3"></textarea>
+                            <button id="ask-tutor" class="ask-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Ask Tutor
+                            </button>
+                        </div>
+                        <div class="quick-questions">
+                            <span>Quick questions:</span>
+                            <button class="quick-btn" data-question="Explain the difference between simple and compound interest">Simple vs Compound Interest</button>
+                            <button class="quick-btn" data-question="How do I calculate loan payments?">Loan Payments</button>
+                            <button class="quick-btn" data-question="What is the time value of money?">Time Value of Money</button>
+                            <button class="quick-btn" data-question="How does inflation affect investments?">Inflation Impact</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Tooltip -->
+        <div class="tooltip" id="tooltip" style="display: none;">
+            <div class="tooltip-content" id="tooltip-content"></div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Analyzing problem...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

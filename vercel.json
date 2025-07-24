@@ -1,6 +1,8 @@
 {
   "version": 2,
   "name": "finance-calculator",
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
   "headers": [
     {
       "source": "/(.*)",
