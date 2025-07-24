@@ -27,6 +27,12 @@ class FinanceAI {
                         name: 'Future Value (Simple Interest)',
                         formula: 'FV = <span class="formula-variable" data-var="P">P</span><span class="formula-operator">(1 +</span> <span class="formula-variable" data-var="r">r</span> <span class="formula-variable" data-var="t">t</span><span class="formula-operator">)</span>',
                         variables: {
+                            'FV': {
+                                name: 'Future Value',
+                                description: 'The final amount after interest is applied',
+                                howToFind: 'This is usually what we solve for',
+                                solveFor: 'FV = P(1 + rt)'
+                            },
                             'P': {
                                 name: 'Principal',
                                 description: 'The initial amount of money invested or borrowed',
@@ -80,6 +86,12 @@ class FinanceAI {
                         name: 'Compound Interest Future Value',
                         formula: 'FV = <span class="formula-variable" data-var="P">P</span><span class="formula-operator">(1 +</span> <span class="formula-variable" data-var="r">r</span><span class="formula-operator">/</span><span class="formula-variable" data-var="m">m</span><span class="formula-operator">)</span><sup><span class="formula-variable" data-var="m">m</span><span class="formula-variable" data-var="t">t</span></sup>',
                         variables: {
+                            'FV': {
+                                name: 'Future Value',
+                                description: 'The final amount after compound interest',
+                                howToFind: 'This is usually what we solve for',
+                                solveFor: 'FV = P(1 + r/m)^(mt)'
+                            },
                             'P': {
                                 name: 'Principal',
                                 description: 'Initial investment amount',
@@ -360,6 +372,19 @@ class FinanceAI {
             document.getElementById('image-input').click();
         });
 
+        // Interactive Calculator functionality
+        document.getElementById('solve-variable').addEventListener('change', () => {
+            this.updateInputFields();
+        });
+
+        document.getElementById('calculate-btn').addEventListener('click', () => {
+            this.performCalculation();
+        });
+
+        document.getElementById('clear-inputs').addEventListener('click', () => {
+            this.clearAllInputs();
+        });
+
         // AI Tutor functionality
         document.getElementById('ask-tutor').addEventListener('click', () => {
             this.askAITutor();
@@ -494,6 +519,7 @@ class FinanceAI {
         `;
         
         this.renderVariableExplanations(formula.variables);
+        this.setupInteractiveCalculator(formula);
     }
 
     renderVariableExplanations(variables) {
@@ -957,6 +983,339 @@ Respond as Professor FinanceAI would - professionally and educationally focused.
         if (typingIndicator) {
             typingIndicator.remove();
         }
+    }
+
+    setupInteractiveCalculator(formula) {
+        const calculatorSection = document.getElementById('calculator-section');
+        const solveVariableSelect = document.getElementById('solve-variable');
+        
+        // Show calculator section
+        calculatorSection.style.display = 'block';
+        
+        // Populate solve-for dropdown
+        solveVariableSelect.innerHTML = '';
+        Object.keys(formula.variables).forEach(varKey => {
+            const option = document.createElement('option');
+            option.value = varKey;
+            option.textContent = `${varKey} - ${formula.variables[varKey].name}`;
+            solveVariableSelect.appendChild(option);
+        });
+        
+        // Set up input fields
+        this.updateInputFields();
+    }
+
+    updateInputFields() {
+        if (!this.currentFormula || !this.currentCategory) return;
+        
+        const formula = this.formulas[this.currentCategory].formulas[this.currentFormula];
+        const solveFor = document.getElementById('solve-variable').value;
+        const inputGrid = document.getElementById('input-grid');
+        
+        inputGrid.innerHTML = '';
+        
+        Object.keys(formula.variables).forEach(varKey => {
+            if (varKey === solveFor) return; // Skip the variable we're solving for
+            
+            const variable = formula.variables[varKey];
+            const inputField = document.createElement('div');
+            inputField.className = 'input-field';
+            
+            inputField.innerHTML = `
+                <label for="input-${varKey}">
+                    <span class="variable-symbol">${varKey}</span>
+                    ${variable.name}
+                </label>
+                <input 
+                    type="number" 
+                    id="input-${varKey}" 
+                    placeholder="Enter ${variable.name.toLowerCase()}"
+                    step="any"
+                >
+            `;
+            
+            inputGrid.appendChild(inputField);
+        });
+    }
+
+    performCalculation() {
+        if (!this.currentFormula || !this.currentCategory) return;
+        
+        const formula = this.formulas[this.currentCategory].formulas[this.currentFormula];
+        const solveFor = document.getElementById('solve-variable').value;
+        
+        // Collect input values
+        const inputs = {};
+        let allInputsValid = true;
+        
+        Object.keys(formula.variables).forEach(varKey => {
+            if (varKey === solveFor) return;
+            
+            const input = document.getElementById(`input-${varKey}`);
+            if (input) {
+                const value = parseFloat(input.value);
+                if (isNaN(value)) {
+                    allInputsValid = false;
+                    input.style.borderColor = 'var(--warning-color)';
+                } else {
+                    inputs[varKey] = value;
+                    input.style.borderColor = 'var(--border-color)';
+                }
+            }
+        });
+        
+        if (!allInputsValid) {
+            alert('Please fill in all required fields with valid numbers.');
+            return;
+        }
+        
+        // Perform calculation based on formula type
+        const result = this.calculateFormula(this.currentCategory, this.currentFormula, solveFor, inputs);
+        
+        if (result) {
+            this.displaySolution(result, solveFor, inputs, formula);
+        }
+    }
+
+    calculateFormula(category, formulaKey, solveFor, inputs) {
+        const calculators = {
+            'simple-interest': {
+                'future-value': (solveFor, inputs) => {
+                    if (solveFor === 'FV') {
+                        const result = inputs.P * (1 + inputs.r * inputs.t);
+                        return {
+                            value: result,
+                            steps: [
+                                {
+                                    description: 'Start with the simple interest future value formula',
+                                    calculation: 'FV = P(1 + rt)'
+                                },
+                                {
+                                    description: 'Substitute the given values',
+                                    calculation: `FV = ${inputs.P}(1 + ${inputs.r} × ${inputs.t})`
+                                },
+                                {
+                                    description: 'Calculate the interest rate times time',
+                                    calculation: `FV = ${inputs.P}(1 + ${inputs.r * inputs.t})`
+                                },
+                                {
+                                    description: 'Add 1 to the interest calculation',
+                                    calculation: `FV = ${inputs.P} × ${1 + inputs.r * inputs.t}`
+                                },
+                                {
+                                    description: 'Multiply to get the final result',
+                                    calculation: `FV = $${result.toFixed(2)}`
+                                }
+                            ],
+                            unit: 'dollars'
+                        };
+                    } else if (solveFor === 'P') {
+                        const result = inputs.FV / (1 + inputs.r * inputs.t);
+                        return {
+                            value: result,
+                            steps: [
+                                {
+                                    description: 'Start with the rearranged formula for Principal',
+                                    calculation: 'P = FV / (1 + rt)'
+                                },
+                                {
+                                    description: 'Substitute the given values',
+                                    calculation: `P = ${inputs.FV} / (1 + ${inputs.r} × ${inputs.t})`
+                                },
+                                {
+                                    description: 'Calculate the denominator',
+                                    calculation: `P = ${inputs.FV} / ${1 + inputs.r * inputs.t}`
+                                },
+                                {
+                                    description: 'Divide to get the final result',
+                                    calculation: `P = $${result.toFixed(2)}`
+                                }
+                            ],
+                            unit: 'dollars'
+                        };
+                    } else if (solveFor === 'r') {
+                        const result = (inputs.FV / inputs.P - 1) / inputs.t;
+                        return {
+                            value: result,
+                            steps: [
+                                {
+                                    description: 'Start with the rearranged formula for rate',
+                                    calculation: 'r = (FV/P - 1) / t'
+                                },
+                                {
+                                    description: 'Substitute the given values',
+                                    calculation: `r = (${inputs.FV}/${inputs.P} - 1) / ${inputs.t}`
+                                },
+                                {
+                                    description: 'Calculate FV/P',
+                                    calculation: `r = (${inputs.FV / inputs.P} - 1) / ${inputs.t}`
+                                },
+                                {
+                                    description: 'Subtract 1',
+                                    calculation: `r = ${inputs.FV / inputs.P - 1} / ${inputs.t}`
+                                },
+                                {
+                                    description: 'Divide by time to get the rate',
+                                    calculation: `r = ${result.toFixed(4)} (${(result * 100).toFixed(2)}%)`
+                                }
+                            ],
+                            unit: 'decimal (percentage)'
+                        };
+                    } else if (solveFor === 't') {
+                        const result = (inputs.FV / inputs.P - 1) / inputs.r;
+                        return {
+                            value: result,
+                            steps: [
+                                {
+                                    description: 'Start with the rearranged formula for time',
+                                    calculation: 't = (FV/P - 1) / r'
+                                },
+                                {
+                                    description: 'Substitute the given values',
+                                    calculation: `t = (${inputs.FV}/${inputs.P} - 1) / ${inputs.r}`
+                                },
+                                {
+                                    description: 'Calculate FV/P',
+                                    calculation: `t = (${inputs.FV / inputs.P} - 1) / ${inputs.r}`
+                                },
+                                {
+                                    description: 'Subtract 1',
+                                    calculation: `t = ${inputs.FV / inputs.P - 1} / ${inputs.r}`
+                                },
+                                {
+                                    description: 'Divide by rate to get the time',
+                                    calculation: `t = ${result.toFixed(2)} years`
+                                }
+                            ],
+                            unit: 'years'
+                        };
+                    }
+                },
+                'simple-interest': (solveFor, inputs) => {
+                    if (solveFor === 'I') {
+                        const result = inputs.P * inputs.r * inputs.t;
+                        return {
+                            value: result,
+                            steps: [
+                                {
+                                    description: 'Start with the simple interest formula',
+                                    calculation: 'I = Prt'
+                                },
+                                {
+                                    description: 'Substitute the given values',
+                                    calculation: `I = ${inputs.P} × ${inputs.r} × ${inputs.t}`
+                                },
+                                {
+                                    description: 'Multiply all values together',
+                                    calculation: `I = $${result.toFixed(2)}`
+                                }
+                            ],
+                            unit: 'dollars'
+                        };
+                    }
+                    // Add other solve-for cases for simple interest
+                }
+            },
+            'compound-interest': {
+                'compound-future-value': (solveFor, inputs) => {
+                    if (solveFor === 'FV') {
+                        const result = inputs.P * Math.pow(1 + inputs.r / inputs.m, inputs.m * inputs.t);
+                        return {
+                            value: result,
+                            steps: [
+                                {
+                                    description: 'Start with the compound interest formula',
+                                    calculation: 'FV = P(1 + r/m)^(mt)'
+                                },
+                                {
+                                    description: 'Substitute the given values',
+                                    calculation: `FV = ${inputs.P}(1 + ${inputs.r}/${inputs.m})^(${inputs.m} × ${inputs.t})`
+                                },
+                                {
+                                    description: 'Calculate r/m (rate per period)',
+                                    calculation: `FV = ${inputs.P}(1 + ${inputs.r / inputs.m})^${inputs.m * inputs.t}`
+                                },
+                                {
+                                    description: 'Calculate (1 + r/m)',
+                                    calculation: `FV = ${inputs.P} × ${1 + inputs.r / inputs.m}^${inputs.m * inputs.t}`
+                                },
+                                {
+                                    description: 'Calculate the exponent',
+                                    calculation: `FV = ${inputs.P} × ${Math.pow(1 + inputs.r / inputs.m, inputs.m * inputs.t).toFixed(6)}`
+                                },
+                                {
+                                    description: 'Multiply to get the final result',
+                                    calculation: `FV = $${result.toFixed(2)}`
+                                }
+                            ],
+                            unit: 'dollars'
+                        };
+                    }
+                    // Add other solve-for cases
+                }
+            }
+            // Add more formula categories as needed
+        };
+
+        const categoryCalculators = calculators[category];
+        if (categoryCalculators && categoryCalculators[formulaKey]) {
+            return categoryCalculators[formulaKey](solveFor, inputs);
+        }
+
+        return null;
+    }
+
+    displaySolution(result, solveFor, inputs, formula) {
+        const solutionDisplay = document.getElementById('solution-display');
+        const solutionSteps = document.getElementById('solution-steps');
+        const finalAnswer = document.getElementById('final-answer');
+        
+        // Clear previous solution
+        solutionSteps.innerHTML = '';
+        
+        // Add solution steps
+        result.steps.forEach((step, index) => {
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'solution-step';
+            stepDiv.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: var(--spacing-3);">
+                    <span class="step-number">${index + 1}</span>
+                    <div style="flex: 1;">
+                        <div class="step-description">${step.description}</div>
+                        <div class="step-calculation">${step.calculation}</div>
+                    </div>
+                </div>
+            `;
+            solutionSteps.appendChild(stepDiv);
+        });
+        
+        // Display final answer
+        const variableName = formula.variables[solveFor].name;
+        finalAnswer.innerHTML = `
+            <h6>Final Answer</h6>
+            <div class="answer-value">
+                ${solveFor} = ${result.value.toFixed(2)}
+                <span class="answer-unit">${result.unit}</span>
+            </div>
+            <div style="margin-top: var(--spacing-2); font-size: var(--font-size-sm);">
+                ${variableName}: ${result.value.toFixed(2)} ${result.unit}
+            </div>
+        `;
+        
+        // Show solution
+        solutionDisplay.style.display = 'block';
+        solutionDisplay.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    clearAllInputs() {
+        const inputs = document.querySelectorAll('#input-grid input');
+        inputs.forEach(input => {
+            input.value = '';
+            input.style.borderColor = 'var(--border-color)';
+        });
+        
+        const solutionDisplay = document.getElementById('solution-display');
+        solutionDisplay.style.display = 'none';
     }
 }
 
