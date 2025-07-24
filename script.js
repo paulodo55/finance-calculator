@@ -6,6 +6,8 @@ class FinanceAI {
         this.formulas = this.initializeFormulas();
         this.currentCategory = null;
         this.currentFormula = null;
+        this.geminiApiKey = 'AIzaSyDopmkTg1mJiZ2dGeooEil61mUh_hFUZhA';
+        this.geminiApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
         this.init();
     }
 
@@ -311,6 +313,8 @@ class FinanceAI {
                 const category = e.currentTarget.dataset.category;
                 if (category === 'word-problems') {
                     this.showWordProblemSolver();
+                } else if (category === 'ai-tutor') {
+                    this.showAITutor();
                 } else {
                     this.showCategory(category);
                 }
@@ -323,6 +327,10 @@ class FinanceAI {
         });
 
         document.getElementById('solver-back-btn').addEventListener('click', () => {
+            this.showHome();
+        });
+
+        document.getElementById('tutor-back-btn').addEventListener('click', () => {
             this.showHome();
         });
 
@@ -350,6 +358,27 @@ class FinanceAI {
         // Upload area click
         document.getElementById('upload-area').addEventListener('click', () => {
             document.getElementById('image-input').click();
+        });
+
+        // AI Tutor functionality
+        document.getElementById('ask-tutor').addEventListener('click', () => {
+            this.askAITutor();
+        });
+
+        document.getElementById('tutor-question').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.askAITutor();
+            }
+        });
+
+        // Quick question buttons
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const question = e.target.dataset.question;
+                document.getElementById('tutor-question').value = question;
+                this.askAITutor();
+            });
         });
     }
 
@@ -401,6 +430,7 @@ class FinanceAI {
         document.querySelector('.formula-categories').style.display = 'block';
         document.getElementById('formula-display').style.display = 'none';
         document.getElementById('word-problem-solver').style.display = 'none';
+        document.getElementById('ai-tutor').style.display = 'none';
         this.currentCategory = null;
         this.currentFormula = null;
     }
@@ -411,6 +441,7 @@ class FinanceAI {
         
         document.querySelector('.formula-categories').style.display = 'none';
         document.getElementById('word-problem-solver').style.display = 'none';
+        document.getElementById('ai-tutor').style.display = 'none';
         
         const formulaDisplay = document.getElementById('formula-display');
         formulaDisplay.style.display = 'block';
@@ -487,10 +518,21 @@ class FinanceAI {
     showWordProblemSolver() {
         document.querySelector('.formula-categories').style.display = 'none';
         document.getElementById('formula-display').style.display = 'none';
+        document.getElementById('ai-tutor').style.display = 'none';
         
         const solver = document.getElementById('word-problem-solver');
         solver.style.display = 'block';
         solver.classList.add('fade-in');
+    }
+
+    showAITutor() {
+        document.querySelector('.formula-categories').style.display = 'none';
+        document.getElementById('formula-display').style.display = 'none';
+        document.getElementById('word-problem-solver').style.display = 'none';
+        
+        const tutor = document.getElementById('ai-tutor');
+        tutor.style.display = 'block';
+        tutor.classList.add('fade-in');
     }
 
     switchTab(tabName) {
@@ -775,6 +817,146 @@ class FinanceAI {
 
     hideLoadingSpinner() {
         document.getElementById('loading-spinner').style.display = 'none';
+    }
+
+    async askAITutor() {
+        const questionInput = document.getElementById('tutor-question');
+        const question = questionInput.value.trim();
+        
+        if (!question) {
+            alert('Please enter a question.');
+            return;
+        }
+
+        // Add user message to chat
+        this.addMessageToChat('user', question);
+        
+        // Clear input and disable button
+        questionInput.value = '';
+        const askBtn = document.getElementById('ask-tutor');
+        askBtn.disabled = true;
+        askBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
+        
+        // Show typing indicator
+        this.showTypingIndicator();
+
+        try {
+            const response = await this.callGeminiAPI(question);
+            this.hideTypingIndicator();
+            this.addMessageToChat('tutor', response);
+        } catch (error) {
+            this.hideTypingIndicator();
+            console.error('Error calling Gemini API:', error);
+            this.addMessageToChat('tutor', 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment. In the meantime, try using the formula categories above for specific calculations.');
+        } finally {
+            // Re-enable button
+            askBtn.disabled = false;
+            askBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Ask Tutor';
+        }
+    }
+
+    async callGeminiAPI(question) {
+        const prompt = `You are Professor FinanceAI, a no-nonsense financial tutor for college students. Your personality is professional, direct, and educational. You focus on teaching concepts clearly without being condescending.
+
+Guidelines for your responses:
+- Be concise but thorough in explanations
+- Use practical examples when helpful
+- Focus on educational value, not just answers
+- If asked for calculations, explain the process but don't solve homework directly
+- Maintain a professional, slightly stern but helpful tone
+- Always encourage learning and understanding over memorization
+
+Student question: ${question}
+
+Respond as Professor FinanceAI would - professionally and educationally focused.`;
+
+        const response = await fetch(`${this.geminiApiUrl}?key=${this.geminiApiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    topK: 40,
+                    topP: 0.95,
+                    maxOutputTokens: 1024,
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+            return data.candidates[0].content.parts[0].text;
+        } else {
+            throw new Error('Invalid API response format');
+        }
+    }
+
+    addMessageToChat(sender, message) {
+        const chatMessages = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = sender === 'user' ? 'user-message' : 'tutor-message';
+        
+        const avatar = sender === 'user' ? 'fas fa-user' : 'fas fa-user-graduate';
+        const senderName = sender === 'user' ? 'You' : 'Professor FinanceAI';
+        
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="${avatar}"></i>
+            </div>
+            <div class="message-content">
+                <p><strong>${senderName}:</strong> ${message}</p>
+            </div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    showTypingIndicator() {
+        const chatMessages = document.getElementById('chat-messages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'tutor-message typing-indicator';
+        typingDiv.id = 'typing-indicator';
+        
+        typingDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="message-content">
+                <div class="typing-indicator">
+                    <span>Professor FinanceAI is thinking</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
     }
 }
 

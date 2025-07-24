@@ -55,6 +55,11 @@
                         <h3>Word Problems</h3>
                         <p>AI-powered problem solver</p>
                     </div>
+                    <div class="category-card" data-category="ai-tutor">
+                        <i class="fas fa-user-graduate"></i>
+                        <h3>AI Financial Tutor</h3>
+                        <p>Professional guidance & explanations</p>
+                    </div>
                 </div>
             </section>
 
@@ -134,6 +139,53 @@
                         </div>
                         <div class="step-by-step" id="step-by-step">
                             <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Financial Tutor -->
+            <section class="ai-tutor" id="ai-tutor" style="display: none;">
+                <div class="tutor-header">
+                    <h3>AI Financial Tutor</h3>
+                    <button class="back-btn" id="tutor-back-btn">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                <div class="tutor-intro">
+                    <div class="tutor-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="tutor-description">
+                        <h4>Professor FinanceAI</h4>
+                        <p>Your no-nonsense financial tutor. Ask me anything about finance, economics, or problem-solving strategies. I'll give you straight answers with clear explanations.</p>
+                    </div>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="tutor-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="message-content">
+                                <p><strong>Professor FinanceAI:</strong> Ready to tackle your financial questions. What concept do you need help understanding?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <div class="input-wrapper">
+                            <textarea id="tutor-question" placeholder="Ask your financial question here..." rows="3"></textarea>
+                            <button id="ask-tutor" class="ask-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Ask Tutor
+                            </button>
+                        </div>
+                        <div class="quick-questions">
+                            <span>Quick questions:</span>
+                            <button class="quick-btn" data-question="Explain the difference between simple and compound interest">Simple vs Compound Interest</button>
+                            <button class="quick-btn" data-question="How do I calculate loan payments?">Loan Payments</button>
+                            <button class="quick-btn" data-question="What is the time value of money?">Time Value of Money</button>
+                            <button class="quick-btn" data-question="How does inflation affect investments?">Inflation Impact</button>
                         </div>
                     </div>
                 </div>

@@ -17,6 +17,7 @@ An AI-powered, educational financial calculator designed specifically for colleg
 - **Image Recognition**: Upload photos of problems (OCR integration ready)
 - **Smart Formula Suggestions**: AI identifies the correct formula to use
 - **Value Extraction**: Automatically identifies given values in problems
+- **AI Financial Tutor**: Professional Gemini AI tutor for personalized guidance
 
 ### 💰 Comprehensive Formula Library
 - **Simple Interest**: Basic interest calculations
@@ -64,13 +65,14 @@ npm run deploy
 ## 📖 How to Use
 
 ### 1. Choose a Formula Category
-Click on any of the six main categories:
+Click on any of the seven main categories:
 - Simple Interest
 - Compound Interest  
 - Annuities
 - Loans & Mortgages
 - Demand & Supply
 - Word Problems (AI Solver)
+- AI Financial Tutor (Professional guidance)
 
 ### 2. Explore Interactive Formulas
 - Click on any formula to see detailed explanations
@@ -83,6 +85,12 @@ Click on any of the six main categories:
 - Or upload an image of the problem
 - Get intelligent analysis and formula suggestions
 - Follow step-by-step solution guidance
+
+### 4. AI Financial Tutor
+- Chat with Professor FinanceAI for personalized help
+- Ask any financial or economic question
+- Get professional, no-nonsense explanations
+- Use quick question buttons for common topics
 
 ## 🎯 Educational Philosophy
 
